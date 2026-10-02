@@ -1,5 +1,120 @@
 /* Import fonts */
-@import url('../fonts/Roboto.css');
+@import url("../fonts/Roboto.css");
 
 /* Reset and normalize */
-@import url('./normalize.css');
+@import url("./normalize.css");
+
+:root {
+  --accent-color: #f86e5f;
+  --primary-color: #ffffff;
+  --dark-color: #686868;
+  --star-color: #ecec02;
+  --table-color: #faf5fb;
+  --link-color: #5cb9c8;
+}
+
+body {
+  background-color: var(--primary-color);
+  margin: 20px 80px;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--accent-color);
+  font-weight: bold;
+  border: 1px solid var(--accent-color);
+  padding: 10px 20px;
+}
+
+header,
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 36px;
+  color: white;
+  text-shadow:
+    1px 1px 0 black,
+    -1px -1px 0 var(--accent-color);
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 10px 10px;
+  border: 1px solid var(--dark-color);
+  font-size: 14px;
+  width: 27ch;
+  margin: 0;
+}
+
+.nav-pages {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+}
+
+.nav-link {
+  font-family: "Roboto", sans-serif;
+  text-decoration: none;
+  color: var(--accent-color);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.nav-add {
+  font-size: 16px;
+}
+
+.divider {
+  background-color: black;
+  height: 1px;
+  width: 40%;
+  margin: 40px auto;
+  border: none;
+}
+
+.top-teachers-title {
+  font-family: "Roboto", sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.filters {
+  display: flex;
+  flex-direction: row;
+  font-family: "Roboto", sans-serif;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 2px 15px;
+  gap: 10px;
+}
+
+.filter-group:not(:last-child) {
+  border-right: 1px dotted var(--dark-color);
+}
+
+.filter-group-title {
+  font-size: 12px;
+  color: var(--dark-color);
+}
+
+.filter-group-select {
+  padding: 5px 4px;
+  font-size: 14px;
+  max-width: 80px;
+  border: 1px solid var(--dark-color);
+  box-sizing: border-box;
+}
