@@ -124,7 +124,8 @@ footer {
 
 .search-button,
 .nav-add,
-.submit-btn {
+.submit-btn,
+.show-more-btn {
   background-color: var(--primary-color);
   color: var(--accent-color);
   font-weight: bold;
@@ -141,7 +142,8 @@ footer {
 
 .search-button:hover,
 .nav-add:hover,
-.submit-btn:hover {
+.submit-btn:hover,
+.show-more-btn:hover {
   background-color: var(--accent-color);
   color: var(--primary-color);
   transform: translate(2px, 0px);
@@ -178,7 +180,9 @@ footer {
 .filter-group-select {
   padding: 5px 4px;
   font-size: 14px;
-  max-width: 80px;
+  width: auto;
+  min-width: 120px;
+  max-width: 100%;
   border: 1px solid var(--dark-color);
   box-sizing: border-box;
   transition: 0.2s ease;
@@ -301,6 +305,7 @@ footer {
   font-size: 40px;
   line-height: 1;
   color: var(--star-color);
+  z-index: 1;
 }
 
 .teacher-info {
@@ -333,6 +338,14 @@ footer {
   color: var(--dark-color);
 }
 
+.show-more-btn {
+  display: block;
+}
+
+.show-more-btn[hidden] {
+  display: none;
+}
+
 /*STATISTICS*/
 
 .table-wrapper {
@@ -361,12 +374,17 @@ footer {
   color: var(--text-color);
 }
 
-.stats-table th:hover::after,
-.stats-table th.active::after {
-  content: " ↓";
+.stats-table th::after {
   position: absolute;
   right: 6px;
   font-size: 12px;
+}
+
+.stats-table th.sort-asc::after {
+  content: " ▲";
+}
+.stats-table th.sort-desc::after {
+  content: " ▼";
 }
 
 .stats-table th:first-child {
@@ -449,6 +467,15 @@ footer {
   transform: scale(1.1);
 }
 
+.carousel-arrow[hidden] {
+  display: none;
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
 /*ABOUT SECTION*/
 
 .about {
@@ -511,7 +538,8 @@ footer .site-nav::after {
     visibility 0.3s;
 }
 
-.popup-overlay:target {
+.popup-overlay:target,
+.popup-overlay.open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -702,6 +730,12 @@ footer .site-nav::after {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.form-error {
+  color: #c0392b;
+  font-size: 14px;
+  margin: 8px 0;
 }
 
 .form-group input[type="color"] {
