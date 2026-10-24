@@ -342,8 +342,12 @@ footer {
   display: block;
 }
 
-.show-more-btn[hidden] {
-  display: none;
+.show-more-btn:disabled {
+  background-color: var(--primary-color);
+  color: var(--accent-color);
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
 }
 
 /*STATISTICS*/
