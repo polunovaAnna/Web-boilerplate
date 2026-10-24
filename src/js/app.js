@@ -11,12 +11,12 @@ import {
 //CONSTANTS
 
 const PAGE_SIZE = 10;
+const LOAD_SIZE = 50;
+const API_URL = "https://randomuser.me/api/";
+const SERVER_URL = "http://localhost:3001/teachers";
 const STATS_PAGE_SIZE = 10;
 const FAVORITES_VISIBLE = 5;
-const USERS = getFormattedUsers();
-const countries = [...new Set(USERS.map((u) => u.country))]
-  .filter(Boolean)
-  .sort();
+const USERS = [];
 
 let currentList = USERS;
 let currentTeacher = null;
@@ -52,6 +52,33 @@ const addForm = document.querySelector(".popup-form");
 const addError = document.querySelector("#add-error");
 const teacherCountry = document.querySelector("#teacher-country");
 const teacherCourse = document.querySelector("#teacher-speciality");
+
+//REQUESTS
+
+async function fetchUsers(count) {
+  const response = await fetch(`${API_URL}?results=${count}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  return data.results;
+}
+
+async function loadValidUsers(count) {
+  const valid = [];
+  for (let attempt = 0; attempt < 5 && valid.length < count; attempt++) {
+    const fetched = await fetchUsers(count - valid.length);
+    valid.push(...getFormattedUsers(fetched).filter(validateUser));
+  }
+  return valid;
+}
+
+async function postTeacher(teacher) {
+  const response = await fetch(SERVER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(teacher),
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+}
 
 //TEMPLATES
 
@@ -95,15 +122,40 @@ function renderTeachers(list) {
         .map((teacher) => cardHtml(teacher))
         .join("")
     : "<p>No teachers found</p>";
-  moreButton.hidden = shownCount >= list.length;
 }
 
-function showMore() {
+async function showMore() {
+  if (shownCount >= currentList.length) {
+    moreButton.disabled = true;
+    moreButton.textContent = "Loading...";
+    try {
+      USERS.push(...(await loadValidUsers(PAGE_SIZE)));
+      renderCountries();
+      applyFilters();
+      moreButton.textContent = "Show more";
+    } catch (error) {
+      console.error(error);
+      moreButton.textContent = "Try again";
+      return;
+    } finally {
+      moreButton.disabled = false;
+    }
+  }
   shownCount += PAGE_SIZE;
   renderTeachers(currentList);
 }
 
 //FILTER AND SEARCH
+function renderCountries() {
+  const countries = [...new Set(USERS.map((u) => u.country))]
+    .filter(Boolean)
+    .sort();
+
+  const selected = countrySelect.value;
+  countrySelect.innerHTML = optionsHtml(countries, "All");
+  countrySelect.value = selected;
+  teacherCountry.innerHTML = optionsHtml(countries);
+}
 
 function applyFilters() {
   const values = {};
@@ -125,7 +177,9 @@ function applyFilters() {
   }
 
   currentList = searchUsers(result, searchInput.value);
+  statsPage = 1;
   renderTeachers(currentList);
+  renderStats();
 }
 
 function refreshTeachers() {
@@ -217,7 +271,9 @@ function pageNumbers(current, total) {
 }
 
 function renderStats() {
-  const sorted = sortField ? sortUsers(USERS, sortField, sortOrder) : USERS;
+  const sorted = sortField
+    ? sortUsers(currentList, sortField, sortOrder)
+    : currentList;
   const start = (statsPage - 1) * STATS_PAGE_SIZE;
 
   statsBody.innerHTML = sorted
@@ -301,7 +357,7 @@ function readNewTeacher() {
   };
 }
 
-function addTeacher() {
+async function addTeacher() {
   const teacher = readNewTeacher();
 
   if (!teacher.course || !validateUser(teacher)) {
@@ -310,9 +366,14 @@ function addTeacher() {
   }
 
   addError.hidden = true;
+  try {
+    await postTeacher(teacher);
+  } catch (error) {
+    console.error(error);
+  }
+
   USERS.unshift(teacher);
   applyFilters();
-  renderStats();
   addForm.reset();
   addModal.classList.remove("open");
 }
@@ -392,15 +453,23 @@ function handleSubmit(event) {
 }
 
 //INIT
+async function init() {
+  try {
+    USERS.push(...(await loadValidUsers(LOAD_SIZE)));
+  } catch (error) {
+    console.error(error);
+    grid.innerHTML = "<p>Could not load teachers</p>";
+    return;
+  }
 
-countrySelect.innerHTML = optionsHtml(countries, "All");
-teacherCountry.innerHTML = optionsHtml(countries);
+  renderCountries();
+  applyFilters();
+  renderFavorites();
+}
+
 teacherCourse.innerHTML = optionsHtml(courses);
-
 document.addEventListener("click", handleClick);
 document.addEventListener("change", handleChange);
 document.addEventListener("submit", handleSubmit);
 
-renderTeachers(USERS);
-renderFavorites();
-renderStats();
+init();
